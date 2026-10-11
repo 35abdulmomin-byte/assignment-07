@@ -132,7 +132,7 @@ export default function AllProducts({ selectedCategory = 'all' }: AllProductsPro
   );
 }
 
-// প্রতিটি প্রোডাক্ট কার্ডের জন্য কমন কম্পোনেন্ট
+
 function ProductCard({
   item,
   toBanglaDigits,
