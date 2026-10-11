@@ -221,7 +221,7 @@ export default function Navbar({
         </ul>
       </nav>
 
-      {/* Row 3: Price Marquee Ticker */}
+
       <div className="bg-[#F8FAFC] border-t border-b border-gray-200 py-2 overflow-hidden select-none">
         <div className="animate-marquee flex items-center whitespace-nowrap">
           {products.length > 0 &&
