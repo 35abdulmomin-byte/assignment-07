@@ -7,7 +7,6 @@ export default function Footer() {
           বাজার দর — প্রয়োজনীয় পণ্যের দাম এক নজরে।
         </p>
 
-        {/* Right Side */}
         <p className="text-gray-500 text-center sm:text-right">
           সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর নির্ভর করে পরিবর্তিত হয়।
         </p>
