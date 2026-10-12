@@ -58,11 +58,10 @@ export default function ProductSlugPage({
   const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
-    // ১. কড়াভাবে লগইন স্ট্যাটাস চেক করা
+    // ১. কড়াভাবে লগইন স্ট্যাটাস চেক করা
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
     if (!isLoggedIn) {
-      // লগইন করা না থাকলে সোজা সাইন-ইন পেজে রিডাইরেক্ট করা
       window.location.replace(`/signin?redirectUrl=${encodeURIComponent(pathname)}`);
       return;
     }
@@ -331,7 +330,7 @@ export default function ProductSlugPage({
                   </div>
 
                   <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-xs space-y-1">
-                    <p className="text-xs font-medium text-gray-400">গড় দাম</p>
+                    <p className="text-xs font-medium text-gray-400">গড় দাম</p>
                     <p className="text-xl font-bold text-emerald-600">
                       {toBanglaDigits(singleProduct.avgPrice || singleProduct.today)} টাকা
                     </p>
@@ -349,7 +348,7 @@ export default function ProductSlugPage({
                         <th className="pb-3 font-medium">বিভাগ</th>
                         <th className="pb-3 font-medium text-center">সর্বনিম্ন</th>
                         <th className="pb-3 font-medium text-center">সর্বোচ্চ</th>
-                        <th className="pb-3 font-medium text-right">গড়</th>
+                        <th className="pb-3 font-medium text-right">গড়</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
