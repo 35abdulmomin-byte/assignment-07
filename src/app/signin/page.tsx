@@ -16,26 +16,25 @@ function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // রিডাইরেক্ট ইউআরএল নির্ধারণ (ডিফল্ট /)
   const rawRedirectUrl = searchParams.get('redirectUrl');
   const redirectUrl = rawRedirectUrl 
     ? decodeURIComponent(rawRedirectUrl) 
     : '/';
 
   const handleSuccessfulAuth = (name: string, userEmail: string) => {
+    // মিডলওয়্যারের জন্য কুকি সেট করা এবং লোকালস্টোরেজ আপডেট করা
+    document.cookie = "isLoggedIn=true; path=/; max-age=86400;";
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('bazarUserName', name);
     localStorage.setItem('bazarUserEmail', userEmail);
     
     toast.success('সফলভাবে লগইন হয়েছে!');
     
-    // সফলভাবে লগইন হওয়ার পর সরাসরি কাঙ্ক্ষিত পেজে রিডাইরেক্ট করা
     setTimeout(() => {
       window.location.href = redirectUrl;
     }, 600);
   };
 
-  // গুগল অ্যাকাউন্ট সিলেক্ট করা
   const selectGoogleAccount = (name: string, userEmail: string) => {
     setShowGoogleModal(false);
     setLoading(true);
@@ -44,21 +43,12 @@ function SignInContent() {
     }, 400);
   };
 
-  // গিটহাব অ্যাকাউন্ট সিলেক্ট করা
   const selectGithubAccount = (name: string, userEmail: string) => {
     setShowGithubModal(false);
     setLoading(true);
     setTimeout(() => {
       handleSuccessfulAuth(name, userEmail);
     }, 400);
-  };
-
-  const handleGoogleSignIn = () => {
-    setShowGoogleModal(true);
-  };
-
-  const handleGithubSignIn = () => {
-    setShowGithubModal(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -151,7 +141,7 @@ function SignInContent() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           <button
             type="button"
-            onClick={handleGoogleSignIn}
+            onClick={() => setShowGoogleModal(true)}
             disabled={loading}
             className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs sm:text-sm font-bold text-gray-800 transition cursor-pointer disabled:opacity-50"
           >
@@ -166,7 +156,7 @@ function SignInContent() {
 
           <button
             type="button"
-            onClick={handleGithubSignIn}
+            onClick={() => setShowGithubModal(true)}
             disabled={loading}
             className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs sm:text-sm font-bold text-gray-800 transition cursor-pointer disabled:opacity-50"
           >
@@ -185,7 +175,6 @@ function SignInContent() {
         </div>
       </div>
 
-      {/* গুগলের অ্যাকাউন্ট সিলেক্ট করার পপআপ উইন্ডো */}
       {showGoogleModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden p-6 border border-gray-100 animate-in fade-in zoom-in duration-200">
@@ -246,7 +235,6 @@ function SignInContent() {
         </div>
       )}
 
-      {/* গিটহাবের অ্যাকাউন্ট সিলেক্ট করার পপআপ উইন্ডো */}
       {showGithubModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden p-6 border border-gray-100 animate-in fade-in zoom-in duration-200">

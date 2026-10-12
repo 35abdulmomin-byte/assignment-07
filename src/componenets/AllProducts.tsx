@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 interface Product {
   id: number | string;
   slug?: string;
   nameBn: string;
   category: string;
+  categoryNameBn?: string;
   unit: string;
   image?: string;
   categoryIcon?: string;
@@ -24,6 +24,7 @@ interface AllProductsProps {
 
 export default function AllProducts({ selectedCategory = 'all' }: AllProductsProps) {
   const [products, setProducts] = useState<Product[]>([]);
+  const [sortType, setSortType] = useState<string>('default');
 
   useEffect(() => {
     async function loadProducts() {
@@ -50,20 +51,36 @@ export default function AllProducts({ selectedCategory = 'all' }: AllProductsPro
     return toBanglaDigits(formatted);
   };
 
-  const filteredProducts =
-    selectedCategory === 'all'
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
+  // ১. ক্যাটাগরি ফিল্টারিং
+  let filteredProducts = products.filter((p) => {
+    if (selectedCategory === 'all') return true;
+    const pCat = (p.category || '').toLowerCase();
+    const sCat = selectedCategory.toLowerCase();
+    return pCat === sCat || pCat.includes(sCat) || sCat.includes(pCat);
+  });
+
+  // ২. সর্টিং (ডিফল্ট / কম থেকে বেশি / বেশি থেকে কম)
+  if (sortType === 'low-high') {
+    filteredProducts = [...filteredProducts].sort((a, b) => a.today - b.today);
+  } else if (sortType === 'high-low') {
+    filteredProducts = [...filteredProducts].sort((a, b) => b.today - a.today);
+  }
 
   const priceUpProducts = selectedCategory === 'all' ? products.filter((p) => p.change?.dir === 'up') : [];
   const priceDownProducts = selectedCategory === 'all' ? products.filter((p) => p.change?.dir === 'down') : [];
 
+  // ক্যাটাগরির বাংলা নাম নির্ধারণ
+  const currentCategoryObj = products.find(p => p.category === selectedCategory);
+  const categoryHeaderName = selectedCategory === 'all' 
+    ? 'সব পণ্য' 
+    : (currentCategoryObj?.categoryNameBn || selectedCategory);
+
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans space-y-10">
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans space-y-6">
       
-      {/* ১. আজ দাম বেড়েছে সেকশন */}
+      {/* ১. আজ দাম বেড়েছে সেকশন (হোম পেজ/সব ক্যাটাগরিতে) */}
       {selectedCategory === 'all' && priceUpProducts.length > 0 && (
-        <div>
+        <div className="mb-8">
           <div className="mb-4 flex items-center gap-2">
             <span className="text-red-500 font-bold">▲</span>
             <h2 className="text-lg sm:text-xl font-bold text-gray-900">
@@ -83,9 +100,9 @@ export default function AllProducts({ selectedCategory = 'all' }: AllProductsPro
         </div>
       )}
 
-      {/* ২. আজ দাম কমেছে সেকশন */}
+      {/* ২. আজ দাম কমেছে সেকশন (হোম পেজ/সব ক্যাটাগরিতে) */}
       {selectedCategory === 'all' && priceDownProducts.length > 0 && (
-        <div>
+        <div className="mb-8">
           <div className="mb-4 flex items-center gap-2">
             <span className="text-emerald-500 font-bold">▼</span>
             <h2 className="text-lg sm:text-xl font-bold text-gray-900">
@@ -105,33 +122,68 @@ export default function AllProducts({ selectedCategory = 'all' }: AllProductsPro
         </div>
       )}
 
-      {/* ৩. সব পণ্য সেকশন */}
+      {/* ৩. ক্যাটাগরি টাইটেল ব্যানার (স্ক্রিনশটের ওপরের বক্স) */}
+      {selectedCategory !== 'all' && (
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-2xl shrink-0">
+            {currentCategoryObj?.categoryIcon || '🌾'}
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {categoryHeaderName}
+            </h1>
+            <p className="text-xs text-gray-400 mt-0.5">
+              প্রতি পণ্যের আজকের দাম ও পরিবর্তন
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ৪. সর্টিং ফিল্টার বার ("সাজান: ডিফল্ট" ড্রপডাউন) */}
+      <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-xs flex items-center justify-end">
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+          <span>সাজান</span>
+          <select
+            value={sortType}
+            onChange={(e) => setSortType(e.target.value)}
+            className="bg-gray-50 border border-gray-200 text-gray-800 text-xs sm:text-sm font-medium rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#009A49] transition cursor-pointer"
+          >
+            <option value="default">ডিফল্ট</option>
+            <option value="low-high">দাম: কম থেকে বেশি</option>
+            <option value="high-low">দাম: বেশি থেকে কম</option>
+          </select>
+        </div>
+      </div>
+
+      {/* ৫. পণ্যের সংখ্যা ও কার্ড গ্রিড */}
       <div>
-        <div className="mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-            {selectedCategory === 'all' ? 'সব পণ্য' : 'পণ্যসমূহ'}
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+        <div className="mb-4">
+          <p className="text-xs sm:text-sm text-gray-500">
             মোট {toBanglaDigits(filteredProducts.length)}টি পণ্য দেখানো হচ্ছে
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredProducts.map((item) => (
-            <ProductCard
-              key={`all-${item.id}`}
-              item={item}
-              toBanglaDigits={toBanglaDigits}
-              formatPrice={formatPrice}
-            />
-          ))}
-        </div>
+        {filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProducts.map((item) => (
+              <ProductCard
+                key={`all-${item.id}`}
+                item={item}
+                toBanglaDigits={toBanglaDigits}
+                formatPrice={formatPrice}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl p-8 text-center border border-gray-100 text-gray-500">
+            এই ক্যাটাগরিতে বর্তমানে কোনো পণ্য পাওয়া যায়নি।
+          </div>
+        )}
       </div>
 
     </section>
   );
 }
-
 
 function ProductCard({
   item,
@@ -142,7 +194,6 @@ function ProductCard({
   toBanglaDigits: (num: number | string) => string;
   formatPrice: (amount: number) => string;
 }) {
-  const router = useRouter();
   const pct = Math.abs(item.change?.pct || 0);
   const dir = item.change?.dir;
 
@@ -153,12 +204,14 @@ function ProductCard({
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // কার্ডে ক্লিক করলে ডিটেইলসে যাওয়ার আগে সাইন-ইন চেক করা
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
     if (!isLoggedIn) {
-      router.push(`/signin?redirectUrl=${encodeURIComponent(productPath)}`);
+      window.location.href = `/signin?redirectUrl=${encodeURIComponent(productPath)}`;
     } else {
-      router.push(productPath);
+      window.location.href = productPath;
     }
   };
 

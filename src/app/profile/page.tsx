@@ -26,11 +26,16 @@ export default function ProfilePage() {
   };
 
   const handleSignOut = () => {
+    // ১. মিডলওয়্যারের কুকি সম্পূর্ণ মুছে ফেলা
+    document.cookie = "isLoggedIn=false; path=/; max-age=0;";
+    
+    // ২. লোকাল স্টোরেজ থেকে সব তথ্য পরিষ্কার করা
+    localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('bazarUserName');
     localStorage.removeItem('bazarUserEmail');
     
-    // সেশন ক্লিয়ার করে সরাসরি পেজ রিফ্রেশসহ সাইন ইন পেজে পাঠানো
-    window.location.href = '/signin';
+    // ৩. সেশন ক্লিয়ার করে সরাসরি পেজ রিফ্রেশসহ সাইন ইন পেজে পাঠানো
+    window.location.replace('/signin');
   };
 
   return (
