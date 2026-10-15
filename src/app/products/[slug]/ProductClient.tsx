@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/componenets/Navbar';
 import Footer from '@/componenets/Footer';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 interface Market {
   market: string;
@@ -45,8 +45,8 @@ export default function ProductClient({
   const resolvedParams = use(params);
   const slugParam = resolvedParams.slug;
   const pathname = usePathname();
+  const router = useRouter();
 
-  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [isCategoryView, setIsCategoryView] = useState<boolean>(false);
   const [singleProduct, setSingleProduct] = useState<Product | null>(null);
   const [categoryTitle, setCategoryTitle] = useState<string>('');
@@ -65,8 +65,6 @@ export default function ProductClient({
       window.location.replace(`/signin?redirectUrl=${encodeURIComponent(pathname)}`);
       return;
     }
-
-    setIsAuthorized(true);
 
     async function fetchData() {
       try {
@@ -109,15 +107,6 @@ export default function ProductClient({
 
     if (slugParam) fetchData();
   }, [slugParam, pathname]);
-
-  if (!isAuthorized) {
-    return (
-      <div className="min-h-screen bg-[#F6F8F6] flex items-center justify-center font-sans">
-        <Toaster position="top-center" />
-        <p className="text-gray-600 font-bold">সাইন-ইন পেজে রিডাইরেক্ট করা হচ্ছে...</p>
-      </div>
-    );
-  }
 
   if (loading) {
     return (
@@ -173,9 +162,9 @@ export default function ProductClient({
           selectedCategory={isCategoryView ? slugParam : singleProduct?.category || 'all'}
           onSelectCategory={(cat) => {
             if (cat === 'all') {
-              window.location.href = '/';
+              router.push('/');
             } else {
-              window.location.href = `/products/${cat}`;
+              router.push(`/products/${cat}`);
             }
           }}
         />
@@ -233,7 +222,7 @@ export default function ProductClient({
                     <div
                       key={item.id}
                       onClick={() => {
-                        window.location.href = `/products/${item.slug || item.id}`;
+                        router.push(`/products/${item.slug || item.id}`);
                       }}
                       className="bg-white rounded-2xl p-4 border border-gray-100 shadow-xs hover:shadow-md transition flex items-center justify-between cursor-pointer"
                     >
@@ -278,7 +267,7 @@ export default function ProductClient({
                 <span>›</span>
                 <span
                   onClick={() => {
-                    window.location.href = `/products/${singleProduct.category}`;
+                    router.push(`/products/${singleProduct.category}`);
                   }}
                   className="hover:text-gray-900 transition cursor-pointer"
                 >
